@@ -1,48 +1,46 @@
-##################################################################################################
-# ORACLE PARTITIONS WITH ECC                                                                     #
-# Copyright (C) 2022                                                                             #
-#                                                                                                #
-# This code is free software: you can redistribute it and/or modify it under the terms of the    #
-# GNU General Public License as published by the Free Software Foundation, either version 3 of   #
-# the License, or (at your option) any later version. This code is distributed in the hope       #
-# that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of         #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    #
-# more details.                                                                                  #
-#                                                                                                #
-# Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
-# Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
-# Computer Department (DC: https://site.dc.ufscar.br/)                                           #
-# Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
-# Bioinformatics and Machine Learning Group (BIOMAL: http://www.biomal.ufscar.br/)               #
-#                                                                                                #
-##################################################################################################
+###############################################################################
+# Oracle Partitions with Ensemble of Classifier Chain                         #
+# Copyright (C) 2022                                                          #
+#                                                                             #
+# This code is free software: you can redistribute it and/or modify it under  #
+# the terms of the GNU General Public License as published by the Free        #
+# Software Foundation, either version 3 of the License, or (at your option)   #
+# any later version. This code is distributed in the hope that it will be     #
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of      #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General    #
+# Public License for more details.                                            #
+#                                                                             #
+# Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin  #
+# Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) |        #
+# Campus Sao Carlos | Computer Department (DC: https://site.dc.ufscar.br/)    #
+# Program of Post Graduation in Computer Science                              #
+# (PPG-CC: http://ppgcc.dc.ufscar.br/) | Bioinformatics and Machine Learning  #
+# Group (BIOMAL: http://www.biomal.ufscar.br/)                                #
+###############################################################################
 
 
-##################################################################################################
-# Script 6 - Run                                                                                 #
-##################################################################################################
 
-
-##################################################################################################
-# Configures the workspace according to the operating system                                     #
-##################################################################################################
+###############################################################################
+# SET WORKSAPCE                                                               #
+###############################################################################
 FolderRoot = "~/Oracle-ECC"
 FolderScripts = paste(FolderRoot, "/R", sep="")
 
 
-
-##################################################################################################
+########################################################################
 #
-##################################################################################################
-bestMeasuresPartitions <- function(dataset_name, number_folds, folderResults){
+########################################################################
+bestMeasuresPartitions <-  function(id_part, ds, dataset_name, number_dataset,
+                                    number_cores, number_folds, folderResults,
+                                    namesLabels) {
 
   retorno = list()
 
   diretorios = directories(dataset_name, folderResults)
 
-  ##################################################################################################
+  ########################################################################
   cat("\nGet the number of bell partitions")
-  setwd(diretorios$folderBellPart)
+  setwd(diretorios$folderBellPartDataset)
   str = paste(dataset_name, "-groupsPerPartitions.csv", sep="")
   bell = data.frame(read.csv(str))
   n = nrow(bell)
@@ -84,10 +82,11 @@ bestMeasuresPartitions <- function(dataset_name, number_folds, folderResults){
     i = 2
     while(i<=n){
       cat("\nPartition ", i)
-      setwd(diretorios$folderReportsDataset)
+      setwd(diretorios$folderTempResults)
       nome = paste("Partition-", i, "-Evaluated.csv", sep="")
       arquivo = data.frame(read.csv(nome))
       result = arquivo[x,]
+      result = result[,-1]
       partition = i
       allMeasure = cbind(partition, result)
       all = rbind(all, allMeasure)
@@ -103,12 +102,13 @@ bestMeasuresPartitions <- function(dataset_name, number_folds, folderResults){
     #setwd(diretorios$folderResultDataset)
     #write.csv(all, paste(dataset_name, "-All-", measures[x], "-Oracle.csv", sep=""), row.names = FALSE)
 
-    setwd(diretorios$folderReportsDataset)
-    write.csv2(all, paste(dataset_name, "-All-", toString(measures2[x]), "-Oracle.csv", sep=""), row.names = FALSE)
+    setwd(diretorios$folderTempResults)
+    write.csv2(all, paste(dataset_name, "-All-",
+                          toString(measures2[x]), "-Oracle.csv", sep=""), row.names = FALSE)
 
-    cat("\n##########################################################")
-    cat("\n Depois escolher a partição com a melhor Macro-F1")
-    cat("\n de P2 até PN, qual obteve a maior Macro-f1 no Fold-x?")
+    #cat("\n##########################################################")
+    #cat("\n Depois escolher a partição com a melhor Macro-F1")
+    #cat("\n de P2 até PN, qual obteve a maior Macro-f1 no Fold-x?")
 
     fold = c(0)
     partition = c(0)
@@ -138,11 +138,9 @@ bestMeasuresPartitions <- function(dataset_name, number_folds, folderResults){
 
     cat("\n")
 
-    #setwd(diretorios$folderResultDataset)
-    #write.csv(result2[-1,], paste(dataset_name, "-Best-Macro-Partitions-Oracle.csv", sep=""), row.names = FALSE)
-
-    setwd(diretorios$folderReportsDataset)
-    write.csv2(result2[-1,], paste(dataset_name, "-Best-", toString(measures2[x]) ,"-Fold-Partitions-Oracle.csv", sep=""), row.names = FALSE)
+    setwd(diretorios$folderTempResults)
+    write.csv2(result2[-1,],
+               paste(dataset_name, "-Best-", toString(measures2[x]) ,"-Fold-Partitions-Oracle.csv", sep=""), row.names = FALSE)
 
     x = x + 1
     gc()
@@ -194,7 +192,7 @@ bwPartition <- function(){
 
     p = 2
     while(p<=n){
-      setwd(diretorios$folderReportsDataset)
+      setwd(diretorios$folderTempResults)
       resultados = data.frame(read.csv(paste("Partition-",p,"-Evaluated.csv", sep="")))
 
       # partition
@@ -367,7 +365,7 @@ bwPartition <- function(){
 
       cat("\n\nPartition: ", p)
 
-      setwd(diretorios$folderReportsDataset)
+      setwd(diretorios$folderTempResults)
       resultados = data.frame(read.csv(paste("Partition-",p,"-Evaluated.csv", sep="")))
       resultados1 = resultados[,-1]
       resultados2 = data.frame(apply(resultados1,1,mean))
@@ -895,7 +893,7 @@ bwPartition <- function(){
   names(wr) = c("measure", "partition", "value")
 
   #cat("Save Best and Worst Partitions")
-  setwd(diretorios$folderReportsDataset)
+  setwd(diretorios$folderTempResults)
   write.csv2(br, paste(dataset_name, "-Results-Best.csv", sep=""))
   write.csv2(wr, paste(dataset_name, "-Results-Worst.csv", sep=""))
 
@@ -906,7 +904,7 @@ bwPartition <- function(){
   frequencia2 = count(wr, vars = "partition")
   names(frequencia2) = c("partition", "frequency")
 
-  setwd(diretorios$folderReportsDataset)
+  setwd(diretorios$folderTempResults)
   write.csv2(frequencia1, paste(dataset_name, "-frequency-results-best.csv", sep=""))
   write.csv2(frequencia2, paste(dataset_name, "-frequency-results-worst.csv", sep=""))
 

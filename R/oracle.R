@@ -1,344 +1,340 @@
-cat("\n\n################################################################################################")
-cat("\n# START EXECUTE ORACLE CLUS - JOIN VALIDATION WITH TRAIN                                         #")
-cat("\n##################################################################################################\n\n")
-
-rm(list = ls())
-
-##################################################################################################
-# ORACLE PARTITIONS WITH ECC                                                                    #
-# Copyright (C) 2022                                                                             #
-#                                                                                                #
-# This code is free software: you can redistribute it and/or modify it under the terms of the    #
-# GNU General Public License as published by the Free Software Foundation, either version 3 of   #
-# the License, or (at your option) any later version. This code is distributed in the hope       #
-# that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of         #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    #
-# more details.                                                                                  #
-#                                                                                                #
-# Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
-# Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
-# Computer Department (DC: https://site.dc.ufscar.br/)                                           #
-# Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
-# Bioinformatics and Machine Learning Group (BIOMAL: http://www.biomal.ufscar.br/)               #
-#                                                                                                #
-##################################################################################################
+cat("\n\n################################################################")
+cat("\n# START EXECUTE ORACLE ECC                                       #")
+cat("\n##################################################################\n\n")
 
 
-##################################################################################################
-# Script 7 - Execute on Cluster/Server                                                           #
-##################################################################################################
+# clean
+rm(list=ls())
 
 
-##################################################################################################
-# Options Configuration                                                                          #
-##################################################################################################
-options(java.parameters = "-Xmx64g")
-options(show.error.messages = TRUE)
-options(scipen = 30)
+###############################################################################
+# Oracle Partitions with Ensemble of Classifier Chain                         #
+# Copyright (C) 2022                                                          #
+#                                                                             #
+# This code is free software: you can redistribute it and/or modify it under  #
+# the terms of the GNU General Public License as published by the Free        #
+# Software Foundation, either version 3 of the License, or (at your option)   #
+# any later version. This code is distributed in the hope that it will be     #
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of      #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General    #
+# Public License for more details.                                            #
+#                                                                             #
+# Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin  #
+# Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) |        #
+# Campus Sao Carlos | Computer Department (DC: https://site.dc.ufscar.br/)    #
+# Program of Post Graduation in Computer Science                              #
+# (PPG-CC: http://ppgcc.dc.ufscar.br/) | Bioinformatics and Machine Learning  #
+# Group (BIOMAL: http://www.biomal.ufscar.br/)                                #
+###############################################################################
 
 
-##################################################################################################
-# Configures the workspace according to the operating system                                     #
-##################################################################################################
+
+###############################################################################
+# SET WORKSAPCE                                                               #
+###############################################################################
 FolderRoot = "~/Oracle-ECC"
-FolderScripts = paste(FolderRoot, "/R", sep = "")
+FolderScripts = paste(FolderRoot, "/R", sep="")
 
 
+###############################################################################
+# LOAD SOURCES
+###############################################################################
+setwd(FolderScripts)
+source("libraries.R")
 
-##################################################################################################
-# Read the dataset file with the information for each dataset                                    #
-##################################################################################################
-setwd(FolderRoot)
-datasets <- data.frame(read.csv("datasets-original.csv"))
+setwd(FolderScripts)
+source("utils.R")
 
+setwd(FolderScripts)
+source("buildAndTestPartitions.R")
 
-##################################################################################################
-# ARGS COMMAND LINE                                                                              #
-##################################################################################################
-args <- commandArgs(TRUE)
+setwd(FolderScripts)
+source("evaluation.R")
 
+setwd(FolderScripts)
+source("BestWorstPartitions.R")
 
-##################################################################################################
-# Get dataset information                                                                        #
-##################################################################################################
-number_dataset = as.numeric(args[1])
-
-
-##################################################################################################
-# Get dataset information                                                                        #
-##################################################################################################
-ds <- datasets[as.numeric(args[1]), ]
-cat("\nOracle: DS \t ", as.numeric(args[1]))
-
-
-##################################################################################################
-# Get the number of cores                                                                        #
-##################################################################################################
-number_cores <- as.numeric(args[2])
-cat("\nOracle: cores \t ", number_cores)
-
-
-##################################################################################################
-# Get the number of folds                                                                        #
-##################################################################################################
-number_folds <- as.numeric(args[3])
-cat("\nOracle: folds \t ", number_folds)
-
-
-##################################################################################################
-# Get the number of folds                                                                        #
-##################################################################################################
-folderResults  <- toString(args[4])
-cat("\nOracle: folder \t ", folderResults)
-
-
-##################################################################################################
-# Get dataset name                                                                               #
-##################################################################################################
-dataset_name  <- toString(ds$Name)
-cat("\nOracle: nome \t ", dataset_name)
-
-
-##################################################################################################
-# DON'T RUN -- it's only for test the code
-# ds <- datasets[42, ]
-# dataset_name = ds$Name
-# number_dataset = ds$Id
-# number_cores = 10
-# number_folds = 10
-# folderResults = "/dev/shm/res"
-##################################################################################################
-
-
-##################################################################################################
-# CONFIG THE FOLDER RESULTS                                                                      #
-##################################################################################################
-if (dir.exists(folderResults) == FALSE) {dir.create(folderResults)}
-
-
-##################################################################################################
-# LOAD RUN.R                                                                                     #
-##################################################################################################
 setwd(FolderScripts)
 source("run.R")
 
 
-##################################################################################################
-# GET THE DIRECTORIES                                                                            #
-##################################################################################################
-cat("\nGet directories\n")
+###############################################################################
+# R Options Configuration                                                     #
+###############################################################################
+options(java.parameters = "-Xmx64g")  # JAVA
+options(show.error.messages = TRUE)   # ERROR MESSAGES
+options(scipen=20)                    # number of places after the comma
+
+
+
+###############################################################################
+# Reading the "datasets-original.csv" file to get dataset information         #
+# for code execution!                                                         #
+###############################################################################
+setwd(FolderRoot)
+datasets <- data.frame(read.csv("datasets-original.csv"))
+
+
+
+###############################################################################
+# ARGS COMMAND LINE                                                          #
+###############################################################################
+cat("\n#####################################")
+cat("\n# GET ARGUMENTS FROM COMMAND LINE   #")
+cat("\n#####################################\n\n")
+args <- commandArgs(TRUE)
+
+
+
+###############################################################################
+# FIRST ARGUMENT: getting specific dataset information being processed        #
+# from csv file                                                               #
+###############################################################################
+
+#config_file = "/home/cissa/Oracle-ECC/O-Config-Files/O-GpositiveGO.csv"
+
+config_file <- args[1]
+
+
+if(file.exists(config_file)==FALSE){
+  cat("\n################################################################")
+  cat("#\n Missing Config File! Verify the following path:              #")
+  cat("#\n ", config_file, "                                            #")
+  cat("#################################################################\n\n")
+  break
+} else {
+  cat("\n########################################")
+  cat("\n# Properly loaded configuration file!  #")
+  cat("\n########################################\n\n")
+}
+
+
+cat("\n########################################")
+cat("\n# Config File                          #\n")
+config = data.frame(read.csv(config_file))
+print(config)
+cat("\n########################################\n\n")
+
+dataset_path = toString(config$Value[1])
+dataset_path = str_remove(dataset_path, pattern = " ")
+
+folderResults = toString(config$Value[2])
+folderResults = str_remove(folderResults, pattern = " ")
+
+bell_partitions_path = toString(config$Value[3])
+bell_partitions_path = str_remove(bell_partitions_path , pattern = " ")
+
+dataset_name = toString(config$Value[4])
+dataset_name = str_remove(dataset_name, pattern = " ")
+
+number_dataset = as.numeric(config$Value[5])
+number_folds = as.numeric(config$Value[6])
+number_cores = as.numeric(config$Value[7])
+
+ds = datasets[number_dataset,]
+
+
+cat("\n################################################################\n")
+print(ds)
+cat("\n# DATASET PATH: \t", dataset_path)
+cat("\n# TEMPORARY PATH: \t", folderResults)
+cat("\n# BELL PARTITIONS PATH: \t", bell_partitions_path)
+cat("\n# DATASET NAME:  \t", dataset_name)
+cat("\n# NUMBER DATASET: \t", number_dataset)
+cat("\n# NUMBER X-FOLDS CROSS-VALIDATION: \t", number_folds)
+cat("\n# NUMBER CORES: \t", number_cores)
+cat("\n################################################################\n\n")
+
+
+###############################################################################
+# Creating temporary processing folder                                        #
+###############################################################################
+if (dir.exists(folderResults) == FALSE) {dir.create(folderResults)}
+
+
+###############################################################################
+# Creating all directories that will be needed for code processing            #
+###############################################################################
+cat("\n######################")
+cat("\n# Get directories    #")
+cat("\n######################\n")
 diretorios <- directories(dataset_name, folderResults)
+print(diretorios)
+cat("\n\n")
 
 
-##################################################################################################
-# COPY FILES
-##################################################################################################
+###############################################################################
+# Copying datasets from ROOT folder on server                                 #
+###############################################################################
 
-cat("\nCOPIANDO DATASETS")
-str00 = paste(
-  "cp /home/cissa/Datasets/",
-  ds$Name,
-  ".tar.gz ",
-  diretorios$folderResults,
-  "/datasets/",
-  sep = ""
-)
-res = system(str00)
-if (res != 0) {
+cat("\n####################################################################")
+cat("\n# Checking the dataset tar.gz file                                 #")
+cat("\n####################################################################\n\n")
+str00 = paste(dataset_path, "/", ds$Name,".tar.gz", sep = "")
+str00 = str_remove(str00, pattern = " ")
+
+if(file.exists(str00)==FALSE){
+
+  cat("\n######################################################################")
+  cat("\n# The tar.gz file for the dataset to be processed does not exist!    #")
+  cat("\n# Please pass the path of the tar.gz file in the configuration file! #")
+  cat("\n# The path entered was: ", str00, "                                  #")
+  cat("\n######################################################################\n\n")
   break
-} else{
-  cat("\ncopiou")
-}
 
-cat("\nDESCOMPACTANDO DATASETS")
-str01 = paste(
-  "tar xzf ",
-  diretorios$folderResults ,
-  "/datasets/",
-  ds$Name,
-  ".tar.gz -C ",
-  diretorios$folderResults,
-  "/datasets",
-  sep = ""
-)
-res = system(str01)
-if (res != 0) {
-  break
-} else{
-  cat("\ndescompactou")
-}
+} else {
 
-cat("\n APAGANDO TAR")
-str03 = paste("rm ",
-              diretorios$folderResults,
-              "/datasets/",
-              ds$Name,
-              ".tar.gz",
-              sep = "")
-res = system(str03)
-if (res != 0) {
-  break
-} else{
-  cat("\napagou")
-}
+  cat("\n####################################################################")
+  cat("\n# tar.gz file of the dataset loaded correctly!                     #")
+  cat("\n####################################################################\n\n")
 
+  # COPIANDO
+  str01 = paste("cp ", str00, " ", diretorios$folderDataset, sep = "")
+  res = system(str01)
+  if (res != 0) {
+    cat("\nError: ", str01)
+    break
+  }
 
-###################################
+  # DESCOMPACTANDO
+  str02 = paste("tar xzf ", diretorios$folderDataset, "/", ds$Name,
+                ".tar.gz -C ", diretorios$folderDataset, sep = "")
+  res = system(str02)
+  if (res != 0) {
+    cat("\nError: ", str02)
+    break
+  }
 
-cat("\nCOPIANDO BELL PARTITIONS")
-str10 = paste(
-  "cp /home/cissa/Partitions/BellPartitions/",
-  ds$Name,
-  ".tar.gz ",
-  diretorios$folderResults,
-  sep = ""
-)
-res = system(str10)
-if (res != 0) {
-  break
-} else{
-  cat("\ncopiou")
-}
+  #APAGANDO
+  str03 = paste("rm ", diretorios$folderDataset, "/", ds$Name,
+                ".tar.gz", sep = "")
+  res = system(str03)
+  if (res != 0) {
+    cat("\nError: ", str03)
+    break
+  }
 
-cat("\nDESCOMPACTANDO BELL PARTITIONS")
-str11 = paste(
-  "tar xzf ",
-  diretorios$folderResults,
-  "/",
-  ds$Name,
-  ".tar.gz -C ",
-  diretorios$folderBellPart,
-  sep = ""
-)
-res = system(str11)
-if (res != 0) {
-  break
-} else{
-  cat("\ndescompactou")
-}
-
-cat("\n APAGANDO TAR")
-str13 = paste("rm ", diretorios$folderResults, "/",
-              ds$Name, ".tar.gz", sep = "")
-res = system(str13)
-if (res != 0) {
-  break
-} else{
-  cat("\napagou")
-}
-
-cat("\nCOPIANDO")
-str14 = paste(
-  "cp -r ",
-  diretorios$folderBellPart,
-  "/",
-  dataset_name,
-  "/* ",
-  diretorios$folderBellPart,
-  sep = ""
-)
-res = system(str14)
-if (res != 0) {
-  break
-} else{
-  cat("\ncopiou")
-}
-
-cat("\nAPAGANDO")
-str15 = paste("rm -r ", diretorios$folderBellPart,
-              "/", dataset_name, sep = "")
-res = system(str15)
-if (res != 0) {
-  break
-} else{
-  cat("\napagou")
 }
 
 
-##################################################################################################
-# Get the number of bell partitions                                                              #
-##################################################################################################
-setwd(diretorios$folderBellPart)
+
+###############################################################################
+# copying partitions from ROOT folder on server                               #
+###############################################################################
+
+cat("\n####################################################################")
+cat("\n# Checking the all partitions (bell partitions) tar.gz file        #")
+cat("\n####################################################################\n\n")
+str00 = paste(bell_partitions_path, "/", ds$Name,".tar.gz", sep = "")
+str00 = str_remove(str00, pattern = " ")
+
+
+if(file.exists(str00)==FALSE){
+
+  cat("\n######################################################################")
+  cat("\n# The tar.gz file for the partitions to be processed does not exist! #")
+  cat("\n# Please pass the path of the tar.gz file in the configuration file! #")
+  cat("\n# The path entered was: ", str00,  "                                 #")
+  cat("\n######################################################################\n\n")
+  break
+
+} else{
+
+  cat("\n####################################################################")
+  cat("\n# tar.gz file of the partitions loaded correctly!                  #")
+  cat("\n####################################################################\n\n")
+
+  # COPIANDO
+  str01 = paste("cp ", str00, " ", diretorios$folderResults, sep = "")
+  res = system(str01)
+  if (res != 0) {
+    cat("\nError: ", str01)
+    break
+  }
+
+  # DESCOMPACTANDO
+  str02 = paste("tar xzf ", diretorios$folderResults, "/", ds$Name,
+                ".tar.gz -C ", diretorios$folderBellPart, sep = "")
+  res = system(str02)
+  if (res != 0) {
+    cat("\nError: ", str02)
+    break
+  }
+
+  # APAGANDO
+  str03 = paste("rm ", diretorios$folderResults, "/",
+                ds$Name, ".tar.gz", sep = "")
+  res = system(str03)
+  if (res != 0) {
+    cat("\nError: ", str03)
+    break
+  }
+
+}
+
+
+
+###############################################################################
+# Getting the total number of possible partitions for the specific dataset    #
+###############################################################################
+setwd(diretorios$folderBellPartDataset)
 str_ = paste(dataset_name, "-groupsPerPartitions.csv", sep = "")
 bell = data.frame(read.csv(str_))
 n = nrow(bell)
 
 
-##################################################################################################
+###############################################################################
+#
+###############################################################################
 apagar = c(0)
 result = data.frame(apagar)
 namesMeasures = c("")
 
 
-##################################################################################################
-# EXECUTE                                                                                        #
-##################################################################################################
+###############################################################################
+#
+###############################################################################
 count = 2
 id_part = 2
 while (id_part <= n) {
 
+  #number_cores = 1
+
   diretorios <- directories(dataset_name, folderResults)
+
+  FolderPartition = paste(diretorios$folderTest, "/Partition-",
+                          id_part, sep="")
 
   cat("\nPARTITION: ", id_part, "\n")
 
-  ########################################################################################################################
+  ############################################################################
   # execute oracle experiment
-  timeEP = system.time(
-    res <-
-      oraclePartitions(
-        number_dataset,
-        number_cores,
-        number_folds,
-        id_part,
-        folderResults
-      )
-  )
+  timeEP = system.time(res <- oraclePartitions(id_part,
+                                               ds,
+                                               dataset_name,
+                                               number_dataset,
+                                               number_cores,
+                                               number_folds,
+                                               folderResults))
 
   result_set <- t(data.matrix(timeEP))
-  setwd(diretorios$folderResults)
+  setwd(diretorios$folderTest)
   write.csv(result_set, paste("Partition-", id_part, "-Runtime.csv"))
 
-  ########################################################################################################################
-  # create folder to save results
-  Folder <-
-    paste(diretorios$folderResultDataset,
-          "/Partition-",
-          id_part,
-          sep = "")
-  setwd(Folder)
-
-
-  ########################################################################################################################
+  ###########################################################################
   # compress files
   cat("\n Compress folders and files")
-  str3a <-
-    paste(
-      "tar -zcf ",
-      diretorios$folderResultDataset,
-      "/",
-      dataset_name,
-      "-Partition-",
-      id_part,
-      "-results.tar.gz " ,
-      diretorios$folderResults,
-      sep = ""
-    )
+  str3a <- paste( "tar -zcf ", diretorios$folderTest, "/", dataset_name,
+                  "-Partition-", id_part, "-results.tar.gz " ,
+                  diretorios$folderTest, sep = "")
   system(str3a)
 
-  ########################################################################################################################
+  ###########################################################################
   cat("\n Copy to google drive")
-  origem = paste(
-    diretorios$folderResultDataset,
-    "/",
-    dataset_name,
-    "-Partition-",
-    id_part,
-    "-results.tar.gz",
-    sep = ""
-  )
+  origem = paste(diretorios$folderTest, "/", dataset_name,
+                 "-Partition-", id_part, "-results.tar.gz", sep = "")
   destino = paste("nuvem:[2022]ResultadosExperimentos/ECC/Oracle/",
-                  dataset_name,
-                  sep = "")
+                  dataset_name, sep = "")
   comando = paste("rclone -P copy ", origem, " ", destino, sep = "")
   cat("\n", comando, "\n")
   a = print(system(comando))
@@ -348,25 +344,18 @@ while (id_part <= n) {
     quit("yes")
   }
 
-  #######################################################################################################################
+  ###########################################################################
   cat("\n delete files")
-  comando2 = paste("rm -r ", diretorios$folderResultDataset,
-                   "/",
-                   dataset_name,
-                   "-Partition-",
-                   id_part,
-                   "-results.tar.gz" , sep="")
+  comando2 = paste("rm -r ", origem)
   print(system(comando2))
 
-  comando3 = paste("rm -r ", Folder, sep="")
+  comando3 = paste("rm -r ", FolderPartition, sep="")
   print(system(comando3))
 
-  ########################################################################################################################
+  ###########################################################################
   # count
   id_part = id_part + 1
   count = count + 1
-
-  ########################################################################################################################
   cat("\n")
   gc()
 
@@ -374,29 +363,12 @@ while (id_part <= n) {
 
 
 
-
-cat("\n##################################################################################################")
-cat("\nCompute Best Measures Partitions per Fold\n")
-timeBMP = system.time(bestMeasuresPartitions(dataset_name, number_folds, folderResults))
-cat("\n##################################################################################################")
-
-cat("\n##################################################################################################")
-cat("\nCompute Best and Worst partition\n")
-timeBWP = system.time(bwPartition())
-cat("\n##################################################################################################")
-
-cat("\n##################################################################################################")
-runtime = rbind(timeBMP, timeBWP)
-setwd(diretorios$folderReportsDataset)
-write.csv(runtime, "Other-Runtime.csv")
-cat("\n##################################################################################################")
-
-cat("\n##################################################################################################")
-cat("\n Copy to google drive")
-origem = paste(diretorios$folderReportsDataset)
+cat("\n###################################################################")
+cat("\n# COPY TEST RESULTS TO GOOGLE DRIVE                               #")
+cat("\n###################################################################\n\n")
+origem = diretorios$folderTest
 destino = paste("nuvem:[2022]ResultadosExperimentos/ECC/Oracle/",
-                dataset_name,
-                sep = "")
+                dataset_name, sep = "")
 comando = paste("rclone -P copy ", origem, " ", destino, sep = "")
 cat("\n", comando, "\n")
 a = print(system(comando))
@@ -405,15 +377,76 @@ if (a != 0) {
   stop("Erro RCLONE")
   quit("yes")
 }
-cat("\n##################################################################################################")
 
-cat("\n##################################################################################################")
-cat("\nDelelete folders\n")
-system(paste("rm -r ", diretorios$folderResultDataset, sep = ""))
-system(paste("rm -r ", diretorios$folderReportsDataset, sep = ""))
-system(paste("rm -r ", diretorios$folderBellPart, sep = ""))
-system(paste("rm -r ", diretorios$folderDatasetFolds, sep = ""))
-cat("\n##################################################################################################")
+
+
+cat("\n###################################################################")
+cat("\n# DELETE TEST FOLDER                                              #")
+cat("\n###################################################################\n\n")
+print(system(paste("rm -r ", diretorios$folderTest, sep="")))
+
+
+
+cat("\n#######################################################################")
+cat("\nCompute Best Measures Partitions per Fold                            #")
+cat("\n#######################################################################\n\n")
+timeBMP = system.time(bestMeasuresPartitions(id_part,
+                                             ds,
+                                             dataset_name,
+                                             number_dataset,
+                                             number_cores,
+                                             number_folds,
+                                             folderResults,
+                                             namesLabels))
+
+
+
+cat("\n######################################################################")
+cat("\nCompute Best and Worst partition                                     #")
+cat("\n######################################################################\n\n")
+timeBWP = system.time(bwPartition())
+
+
+cat("\n######################################################################")
+cat("\n# SAVE RUNTIME                                                       #")
+cat("\n######################################################################\n\n")
+runtime = rbind(timeBMP, timeBWP)
+setwd(diretorios$folderTempResults)
+write.csv(runtime, "Other-Runtime.csv")
+
+
+cat("\n######################################################################")
+cat("\n# Copy to google drive                                               #")
+cat("\n######################################################################\n\n")
+origem = diretorios$folderTempResults
+destino = paste("nuvem:[2022]ResultadosExperimentos/ECC/Oracle/",
+               dataset_name, sep = "")
+comando = paste("rclone -P copy ", origem, " ", destino, sep = "")
+cat("\n", comando, "\n")
+a = print(system(comando))
+a = as.numeric(a)
+if (a != 0) {
+ stop("Erro RCLONE")
+ quit("yes")
+}
+
+
+
+cat("\n######################################################################")
+cat("\n# COPY TO FOLDER REPORTS                                             #")
+cat("\n######################################################################\n\n")
+origem = paste(diretorios$folderTempResults, "/*", sep="")
+destino = diretorios$folderReportsD
+print(system(paste("cp -r ", origem, " ", destino, sep="")))
+
+
+
+cat("\n######################################################################")
+cat("\n# DELETE FOLDERS                                                     #")
+cat("\n######################################################################\n\n")
+system(paste("rm -r ", diretorios$folderResults, sep = ""))
+
+
 
 gc()
 cat("\n##################################################################################################")
